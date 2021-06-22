@@ -1,8 +1,9 @@
-import { createReducer } from "@reduxjs/toolkit";
+import { combineReducers } from "@reduxjs/toolkit";
+import users from "./user";
 
-const counterReducer = createReducer(0, {
-  increment: (state, action) => state + action.payload,
-  decrement: (state, action) => state - action.payload,
+const reducer = combineReducers({
+  users,
 });
 
-export default counterReducer;
+export type ReducerType = ReturnType<typeof reducer>;
+export default reducer;
