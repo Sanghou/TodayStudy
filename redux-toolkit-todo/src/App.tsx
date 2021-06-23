@@ -1,13 +1,14 @@
 import React from "react";
 import InputTest from "./components/basicReducerTest";
-import logo from "./logo.svg";
+import Todos from "./components/todos";
 
 import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <InputTest />
+      <Todos />
+      {/* <InputTest /> */}
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>

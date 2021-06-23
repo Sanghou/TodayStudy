@@ -1,6 +1,15 @@
-import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
-function TodoRow() {
-  const [todos, setTodos] = useState();
-  return <div>todos</div>;
+import { Todo, removeTodo, checkTodo } from "../reducers/todos";
+
+function TodoRow({ todo }: { todo: Todo }) {
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      {todo.contents} {todo.id}
+    </div>
+  );
 }
+
+export default TodoRow;

@@ -1,3 +1,7 @@
+#6월 23일
+
+- tsconfig 세팅 다시 보기. alias가 되다가 다시 안되던데 왜지..?
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
