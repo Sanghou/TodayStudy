@@ -3,34 +3,22 @@ function statement(invoice, plays) {
   const statementData = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
+  statementData.totalAmount = totalAmount(statementData);
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
 
   return renderPlainText(statementData, plays);
 
   function enrichPerformance(aPerformance) {
     const result = Object.assign({}, aPerformance);
     result.play = playFor(result);
+    result.amount = amountFor(result);
+    result.volumeCredits = volumeCreditsFor(result);
     return result;
   }
 
   function playFor(aPerformance) {
     return plays[aPerformance.playID];
   }
-}
-
-// 본문 전체를 별도 함수로 추출함
-function renderPlainText(data) {
-  let result = ` 청구 내역 (고객명: ${data.customer})\n`;
-
-  for (let perf of data.performances) {
-    result += `${perf.play.name}: ${usd(amountFor(perf))} (${
-      perf.audience
-    }석) \n`;
-  }
-
-  result += `총액: ${usd(totalAmount())}\n`;
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`;
-
-  return result;
 
   // 한 번의 공연 요금에 대한 계산
   function amountFor(aPerformance) {
@@ -65,28 +53,42 @@ function renderPlainText(data) {
     return res;
   }
 
+  function totalVolumeCredits(data) {
+    let res = 0;
+    for (let perf of data.performances) {
+      res += perf.volumeCredits;
+    }
+    return res;
+  }
+
+  function totalAmount(data) {
+    let res = 0;
+    for (let perf of data.performances) {
+      res += perf.amount;
+    }
+    return res;
+  }
+}
+
+// 본문 전체를 별도 함수로 추출함
+function renderPlainText(data) {
+  let result = ` 청구 내역 (고객명: ${data.customer})\n`;
+
+  for (let perf of data.performances) {
+    result += `${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석) \n`;
+  }
+
+  result += `총액: ${usd(data.totalAmount)}\n`;
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`;
+
+  return result;
+
   function usd(aNumber) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
       minimumFractionDigits: 2,
     }).format(aNumber / 100);
-  }
-
-  function totalVolumeCredits() {
-    let res = 0;
-    for (let perf of data.performances) {
-      res += volumeCreditsFor(perf);
-    }
-    return res;
-  }
-
-  function totalAmount() {
-    let res = 0;
-    for (let perf of data.performances) {
-      res += amountFor(perf);
-    }
-    return res;
   }
 }
 
