@@ -2,17 +2,27 @@ function statement(invoice, plays) {
   // 중간 데이터 구조
   const statementData = {};
   statementData.customer = invoice.customer;
-  statementData.performances = invoice.performances;
+  statementData.performances = invoice.performances.map(enrichPerformance);
 
   return renderPlainText(statementData, plays);
+
+  function enrichPerformance(aPerformance) {
+    const result = Object.assign({}, aPerformance);
+    result.play = playFor(result);
+    return result;
+  }
+
+  function playFor(aPerformance) {
+    return plays[aPerformance.playID];
+  }
 }
 
 // 본문 전체를 별도 함수로 추출함
-function renderPlainText(data, plays) {
+function renderPlainText(data) {
   let result = ` 청구 내역 (고객명: ${data.customer})\n`;
 
   for (let perf of data.performances) {
-    result += `${playFor(perf).name}: ${usd(amountFor(perf))} (${
+    result += `${perf.play.name}: ${usd(amountFor(perf))} (${
       perf.audience
     }석) \n`;
   }
@@ -22,14 +32,10 @@ function renderPlainText(data, plays) {
 
   return result;
 
-  function playFor(aPerformance) {
-    return plays[aPerformance.playID];
-  }
-
   // 한 번의 공연 요금에 대한 계산
   function amountFor(aPerformance) {
     let res = 0;
-    switch (playFor(aPerformance).type) {
+    switch (aPerformance.play.type) {
       case "tragedy":
         res = 40000;
         if (aPerformance.audience > 30) {
@@ -44,7 +50,7 @@ function renderPlainText(data, plays) {
         res += 300 * aPerformance.audience;
         break;
       default:
-        throw new Error(`알 수 없는 장르:  ${playFor(aPerformance).type}`);
+        throw new Error(`알 수 없는 장르:  ${aPerformance.play.type}`);
     }
 
     return res;
@@ -53,7 +59,7 @@ function renderPlainText(data, plays) {
   function volumeCreditsFor(aPerformance) {
     let res = 0;
     res += Math.max(aPerformance.audience - 30, 0);
-    if ("comedy" === playFor(aPerformance).type) {
+    if ("comedy" === aPerformance.play.type) {
       res += Math.floor(aPerformance.audience / 5);
     }
     return res;
