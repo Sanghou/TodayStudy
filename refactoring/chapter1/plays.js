@@ -1,11 +1,17 @@
 function statement(invoice, plays) {
-  return renderPlainText(invoice, plays);
+  // 중간 데이터 구조
+  const statementData = {};
+  statementData.customer = invoice.customer;
+  statementData.performances = invoice.performances;
+
+  return renderPlainText(statementData, plays);
 }
 
-function renderPlainText(invoice, plays) {
-  let result = ` 청구 내역 (고객명: ${invoice.customer})\n`;
+// 본문 전체를 별도 함수로 추출함
+function renderPlainText(data, plays) {
+  let result = ` 청구 내역 (고객명: ${data.customer})\n`;
 
-  for (let perf of invoice.performances) {
+  for (let perf of data.performances) {
     result += `${playFor(perf).name}: ${usd(amountFor(perf))} (${
       perf.audience
     }석) \n`;
@@ -63,7 +69,7 @@ function renderPlainText(invoice, plays) {
 
   function totalVolumeCredits() {
     let res = 0;
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       res += volumeCreditsFor(perf);
     }
     return res;
@@ -71,7 +77,7 @@ function renderPlainText(invoice, plays) {
 
   function totalAmount() {
     let res = 0;
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       res += amountFor(perf);
     }
     return res;
