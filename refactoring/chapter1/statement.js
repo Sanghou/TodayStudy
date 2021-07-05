@@ -1,4 +1,4 @@
-const createStatementData = require("./createStatementData.js");
+import createStatementData from "./createStatementData.js";
 
 const p = {
   hamlet: { name: "Hamlet", type: "tragedy" },
