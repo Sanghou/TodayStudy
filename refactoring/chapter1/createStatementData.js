@@ -1,53 +1,13 @@
-class PerformanceCalculator {
-  constructor(aPerformance, aPlay) {
-    this.performance = aPerformance;
-    this.play = aPlay;
-  }
-
-  // 한 번의 공연 요금에 대한 계산
-  get amount() {
-    let res = 0;
-    switch (this.play.type) {
-      case "tragedy":
-        res = 40000;
-        if (this.performance.audience > 30) {
-          res += 1000 * (this.performance.audience - 30);
-        }
-        break;
-      case "comedy":
-        res = 30000;
-        if (this.performance.audience > 20) {
-          res += 10000 + 500 * (this.performance.audience - 20);
-        }
-        res += 300 * this.performance.audience;
-        break;
-      default:
-        throw new Error(`알 수 없는 장르:  ${this.play.type}`);
-    }
-
-    return res;
-  }
-
-  get volumeCredits() {
-    let res = 0;
-    res += Math.max(this.performance.audience - 30, 0);
-    if ("comedy" === this.play.type) {
-      res += Math.floor(this.performance.audience / 5);
-    }
-    return res;
-  }
-}
-
 export default function createStatementData(invoice, plays) {
-  const statementData = {};
-  statementData.customer = invoice.customer;
-  statementData.performances = invoice.performances.map(enrichPerformance);
-  statementData.totalAmount = totalAmount(statementData);
-  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
-  return statementData;
+  const result = {};
+  result.customer = invoice.customer;
+  result.performances = invoice.performances.map(enrichPerformance);
+  result.totalAmount = totalAmount(result);
+  result.totalVolumeCredits = totalVolumeCredits(result);
+  return result;
 
   function enrichPerformance(aPerformance) {
-    const calculator = new PerformanceCalculator(
+    const calculator = createPerformanceCalculator(
       aPerformance,
       playFor(aPerformance)
     );
@@ -62,22 +22,65 @@ export default function createStatementData(invoice, plays) {
     return plays[aPerformance.playID];
   }
 
-  // 한 번의 공연 요금에 대한 계산
-  function amountFor(aPerformance) {
-    return new PerformanceCalculator(aPerformance, playFor(aPerformance))
-      .amount;
-  }
-
-  function volumeCreditsFor(aPerformance) {
-    return new PerformanceCalculator(aPerformance, playFor(aPerformance))
-      .volumeCredits;
-  }
-
   function totalVolumeCredits(data) {
     return data.performances.reduce((total, p) => total + p.volumeCredits, 0);
   }
 
   function totalAmount(data) {
     return data.performances.reduce((acc, p) => acc + p.amount, 0);
+  }
+}
+
+// 팩토리 함수
+function createPerformanceCalculator(aPerformance, aPlay) {
+  switch (aPlay.type) {
+    case "tragedy":
+      return new TragedyCalculator(aPerformance, aPlay);
+    case "comedy":
+      return new ComedyCalculator(aPerformance, aPlay);
+    default:
+      throw new Error(`알 수 없는 장르: ${aPlay.type}`);
+  }
+}
+
+class PerformanceCalculator {
+  constructor(aPerformance, aPlay) {
+    this.performance = aPerformance;
+    this.play = aPlay;
+  }
+
+  // 한 번의 공연 요금에 대한 계산
+  get amount() {
+    throw new Error(`서브클래스에서 처리하도록 설계되었습니다`);
+  }
+
+  get volumeCredits() {
+    return Math.max(this.performance.audience - 30, 0);
+  }
+}
+
+class TragedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let res = 40000;
+    if (this.performance.audience > 30) {
+      res += 1000 * (this.performance.audience - 30);
+    }
+
+    return res;
+  }
+}
+
+class ComedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let res = 30000;
+    if (this.performance.audience > 20) {
+      res += 10000 + 500 * (this.performance.audience - 20);
+    }
+    res += 300 * this.performance.audience;
+    return res;
+  }
+
+  get volumeCredits() {
+    return super.volumeCredits + Math.floor(this.performance.audience / 5);
   }
 }
