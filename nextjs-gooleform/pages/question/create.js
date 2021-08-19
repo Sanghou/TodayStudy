@@ -7,6 +7,9 @@ import {
   editQuestion,
 } from "../../reducers/question";
 
+import style from "../../style/selector.module.css";
+import bg from "../../style/background.module.css";
+
 const CreatePage = () => {
   // const [questions, setQuestions] = useState([]);
 
@@ -35,34 +38,37 @@ const CreatePage = () => {
   };
 
   return (
-    <div>
+    <div classNAme={bg.wrapper}>
       <div className="buttons">
         <button onClick={(e) => addQuestion(e)}> create </button>
       </div>
       {questions.map((question) => {
         return (
           <div key={question.uuid}>
-            <button onClick={() => removeQuestion(question.uuid)}>
-              Delete
-            </button>
-            <div className="id"> {question.uuid} </div>
-            <textarea
-              onChange={() =>
-                onQuestionUpdate(question, "title", e.target.value)
-              }
-              className="title"
-            >
-              {question.title || "default title"}
-            </textarea>
-            <textarea
-              className="subtitle"
-              onChange={() =>
-                onQuestionUpdate(question, "title", e.target.value)
-              }
-              value={question.subtitle}
-            />
-
-            <div className="options"> {question.option}</div>
+            <div className="form">
+              <div className="id"> {question.uuid} </div>
+              <textarea
+                onChange={() =>
+                  onQuestionUpdate(question, "title", e.target.value)
+                }
+                className={style.question_title}
+              >
+                {question.title || "default title"}
+              </textarea>
+              {/* <textarea
+                className="subtitle"
+                onChange={() =>
+                  onQuestionUpdate(question, "title", e.target.value)
+                }
+                value={question.subtitle}
+              /> */}
+              <div className="options"> {question.options}</div>
+            </div>
+            <div className="additionalForm">
+              <button onClick={() => removeQuestion(question.uuid)}>
+                Delete
+              </button>
+            </div>
           </div>
         );
       })}
