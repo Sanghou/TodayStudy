@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const port = process.env.PORT || 80; // -- 처음에 할땐 3000이라고 하고 한 후
+const port = process.env.PORT || 3000; // -- 처음에 할땐 3000이라고 하고 한 후
 //localhost:3000 으로 하시는 것을 추천
 const app = express();
 
@@ -24,3 +24,5 @@ app.post("/image/get", async (req, res) => {
   const url = "https://www.ringleplus.com";
   res.json(url);
 });
+
+// 52.79.130.208
